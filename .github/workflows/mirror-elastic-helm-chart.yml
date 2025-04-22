@@ -16,10 +16,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y yq
+      - name: Install yq
+        uses: mikefarah/setup-yq@v1
+        with:
+          version: v4.47.1
 
       - name: Install Helm
         uses: azure/setup-helm@v4
