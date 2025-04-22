@@ -21,9 +21,10 @@ jobs:
           version: 'latest'   # Helm 3.x :contentReference[oaicite:9]{index=9}
 
       - name: Install helm-mirror plugin
-        run: \
-        wget https://github.com/openSUSE/helm-mirror/releases/download/v0.3.1/helm-mirror-linux.tgz  -O helm-mirror-linux.tgz
-        helm plugin install helm-mirror-linux.tgz
+        run: |
+          wget https://github.com/openSUSE/helm-mirror/releases/download/v0.3.1/helm-mirror-linux.tgz \
+            -O helm-mirror-linux.tgz
+          helm plugin install helm-mirror-linux.tgz
 
       - name: Mirror Elastic Helm repo
         run: helm mirror https://helm.elastic.co ./repo/elastic           # :contentReference[oaicite:11]{index=11}
