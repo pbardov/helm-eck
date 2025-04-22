@@ -1,0 +1,37 @@
+name: Mirror Elastic Helm Charts
+
+on:
+  schedule:
+    - cron: '0 0 * * *'       # ежедневно в полночь
+  workflow_dispatch:          # вручную из UI
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # нужен для пуша изменений
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'latest'   # Helm 3.x :contentReference[oaicite:9]{index=9}
+
+      - name: Install helm-mirror plugin
+        run: helm plugin install https://github.com/openSUSE/helm-mirror  # :contentReference[oaicite:10]{index=10}
+
+      - name: Mirror Elastic Helm repo
+        run: helm mirror https://helm.elastic.co ./repo/elastic           # :contentReference[oaicite:11]{index=11}
+
+      - name: Regenerate index.yaml
+        run: helm repo index ./repo/elastic \
+              --url https://github.com/pbardov/helm-eck/repo/elastic
+
+      - name: Commit and push mirrored charts
+        uses: stefanzweifel/git-auto-commit-action@v5                    # :contentReference[oaicite:12]{index=12}
+        with:
+          commit_message: 'Mirror Elastic Helm charts'
+          file_pattern: 'repo/elastic/**'
