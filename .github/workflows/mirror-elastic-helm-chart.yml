@@ -1,3 +1,4 @@
+# .github/workflows/mirror-elastic-helm-chart.yml
 name: Mirror Elastic Helm Charts
 
 on:
@@ -9,29 +10,54 @@ jobs:
   mirror:
     runs-on: ubuntu-latest
     permissions:
-      contents: write        # нужен для пуша изменений
+      contents: write        # нужно для пуша изменений в репо
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y yq
+
       - name: Install Helm
         uses: azure/setup-helm@v4
         with:
-          version: 'latest'   # Helm 3.x :contentReference[oaicite:9]{index=9}
-
-      - name: Install helm-mirror plugin
-        run: helm plugin install https://github.com/openSUSE/helm-mirror --version v0.3.1
+          version: 'latest'    # Helm 3.x
 
       - name: Mirror Elastic Helm repo
-        run: helm mirror https://helm.elastic.co ./repo/elastic           # :contentReference[oaicite:11]{index=11}
+        run: |
+          set -euo pipefail
 
-      - name: Regenerate index.yaml
-        run: helm repo index ./repo/elastic \
-              --url https://github.com/pbardov/helm-eck/repo/elastic
+          # 1) Добавляем официальный репо и обновляем индексы
+          helm repo add elastic https://helm.elastic.co
+          helm repo update
+
+          # 2) Готовим папку для зеркала
+          mkdir -p repo/elastic
+
+          # 3) Скачиваем index.yaml
+          curl -s https://helm.elastic.co/index.yaml > index.yaml
+
+          # 4) Парсим список чарта и версий
+          charts=$(yq e '.entries | keys | .[]' index.yaml)
+          for chart in $charts; do
+            versions=$(yq e ".entries[\"$chart\"][] | .version" index.yaml)
+            for ver in $versions; do
+              echo "Pulling $chart@$ver"
+              helm pull elastic/$chart \
+                --version "$ver" \
+                --destination repo/elastic
+            done
+          done
+
+          # 5) Перегенерируем локальный index.yaml под GitHub Pages
+          helm repo index repo/elastic \
+            --url https://github.com/pbardov/helm-eck/repo/elastic
 
       - name: Commit and push mirrored charts
-        uses: stefanzweifel/git-auto-commit-action@v5                    # :contentReference[oaicite:12]{index=12}
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'Mirror Elastic Helm charts'
           file_pattern: 'repo/elastic/**'
