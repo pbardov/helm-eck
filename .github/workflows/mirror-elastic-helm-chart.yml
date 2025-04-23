@@ -17,9 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install yq
-        uses: mikefarah/setup-yq@v1
-        with:
-          version: v4.47.1
+        uses: mikefarah/yq@master
 
       - name: Install Helm
         uses: azure/setup-helm@v4
