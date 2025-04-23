@@ -52,7 +52,7 @@ jobs:
 
           # 5) Перегенерируем локальный index.yaml под GitHub Pages
           helm repo index repo/elastic \
-            --url https://github.com/pbardov/helm-eck/repo/elastic
+            --url https://pbardov.github.io/helm-eck/repo/elastic
 
       - name: Commit and push mirrored charts
         uses: stefanzweifel/git-auto-commit-action@v5
