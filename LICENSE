@@ -1,0 +1,8 @@
+This repository is a mirror of the official Elastic Helm Charts repository (https://helm.elastic.co/).
+
+All original content, including Helm chart packages and associated files, remains the exclusive property of Elastic.
+
+No rights are claimed for the original content; this mirror is provided solely as a convenience to work around intermittent access restrictions (HTTP 403 errors) when fetching charts directly from the upstream repository.
+
+Use of the mirrored charts is subject to Elastic's licensing terms as defined in the original repository. No additional rights are granted by this mirror.
+
